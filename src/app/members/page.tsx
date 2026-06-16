@@ -16,7 +16,7 @@ export default function MembersPage() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
 
-  const { members, loading: loadingMembers, addMember } = useMembers();
+  const { members, loading: loadingMembers, addMember, updateMemberRole } = useMembers();
   const { tasks, loading: loadingTasks } = useTasks();
 
   // Redirect if not logged in
@@ -28,7 +28,7 @@ export default function MembersPage() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newMemberName, setNewMemberName] = useState("");
-  const [newMemberRole, setNewMemberRole] = useState<"Admin" | "Lead" | "Member">("Member");
+  const [newMemberRole, setNewMemberRole] = useState<"Admin" | "Lead" | "Member" | "Visitor">("Member");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
@@ -67,6 +67,14 @@ export default function MembersPage() {
       setError(err.message || "Failed to add member");
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleRoleChange = async (memberId: string, targetRole: string) => {
+    try {
+      await updateMemberRole(memberId, targetRole);
+    } catch (err) {
+      // error already toasted
     }
   };
 
@@ -138,10 +146,25 @@ export default function MembersPage() {
                   <p className="text-[10px] text-zinc-500 font-bold uppercase mt-0.5">Joined recently</p>
                 </div>
 
-                <Badge 
-                  label={member.role} 
-                  variant={member.role === "Lead" ? "inprogress" : member.role === "Admin" ? "critical" : "default"} 
-                />
+                {user && (user.role === "Admin" || (user.role === "Lead" && member.role !== "Admin" && member.role !== "Lead")) ? (
+                  <div className="flex flex-col gap-1 w-full max-w-[150px]">
+                    <span className="text-[9px] font-black text-zinc-500 uppercase tracking-wide">Change Role:</span>
+                    <select
+                      value={member.role}
+                      onChange={(e) => handleRoleChange(member._id, e.target.value)}
+                      className="w-full p-1.5 bg-white border-2 border-black rounded-lg text-xs font-bold focus:outline-none shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] text-black"
+                    >
+                      {user.role === "Admin" && <option value="Lead">Project Lead</option>}
+                      <option value="Member">Member</option>
+                      <option value="Visitor">Visitor</option>
+                    </select>
+                  </div>
+                ) : (
+                  <Badge 
+                    label={member.role} 
+                    variant={member.role === "Lead" ? "inprogress" : member.role === "Admin" ? "critical" : member.role === "Visitor" ? "low" : "default"} 
+                  />
+                )}
 
                 <div className="w-full border-t border-dashed border-zinc-200 pt-3 mt-1 flex items-center justify-between text-xs font-semibold px-2 text-zinc-700">
                   <span>Active Tasks:</span>
@@ -186,8 +209,9 @@ export default function MembersPage() {
               className="w-full p-2.5 bg-white border-2 border-black rounded-lg text-xs font-bold focus:outline-none"
             >
               <option value="Member">Member</option>
-              <option value="Lead">Project Lead</option>
-              <option value="Admin">Club Admin</option>
+              <option value="Visitor">Visitor</option>
+              {user.role === "Admin" && <option value="Lead">Project Lead</option>}
+              {user.role === "Admin" && <option value="Admin">Club Admin</option>}
             </select>
           </div>
 

@@ -7,13 +7,14 @@ export interface JWTPayload {
   userId: string;
   name: string;
   email: string;
-  role: "Admin" | "Lead" | "Member";
+  role: "Admin" | "Lead" | "Member" | "Visitor";
   avatar: string;
   workspace: string;
 }
 
-export function signToken(payload: JWTPayload): string {
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: "7d" });
+export function signToken(payload: any): string {
+  const { iat, exp, ...cleanPayload } = payload;
+  return jwt.sign(cleanPayload, JWT_SECRET, { expiresIn: "7d" });
 }
 
 export function verifyToken(token: string): JWTPayload | null {

@@ -15,6 +15,13 @@ export async function POST(request: NextRequest) {
       return Response.json({ error: "Missing required fields" }, { status: 400 });
     }
 
+    if (role === "Admin") {
+      return Response.json(
+        { error: "Unauthorized. You cannot register as a Club Admin." },
+        { status: 403 }
+      );
+    }
+
     const emailLower = email.toLowerCase().trim();
     const workspaceName = (workspace || "Android Club").trim();
 
@@ -41,7 +48,7 @@ export async function POST(request: NextRequest) {
       name,
       email: emailLower,
       password: hashedPassword,
-      role: role || "Member",
+      role: "Visitor",
       avatar: initials,
       workspace: workspaceName,
     });

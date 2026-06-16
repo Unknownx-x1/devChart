@@ -67,6 +67,7 @@ export default function TaskDetailPanel({
   if (!isOpen) return null;
 
   const handleBlurTitle = async () => {
+    if (user?.role === "Visitor") return;
     if (task && localTitle.trim() && localTitle !== task.title) {
       await updateTask({ title: localTitle.trim() });
       onTaskUpdated();
@@ -74,6 +75,7 @@ export default function TaskDetailPanel({
   };
 
   const handleBlurDesc = async () => {
+    if (user?.role === "Visitor") return;
     if (task && localDesc !== task.description) {
       await updateTask({ description: localDesc });
       onTaskUpdated();
@@ -81,6 +83,7 @@ export default function TaskDetailPanel({
   };
 
   const handleStatusChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
+    if (user?.role === "Visitor") return;
     const newStatus = e.target.value as "Todo" | "InProgress" | "Done";
     if (task && newStatus !== task.status) {
       await updateTask({ status: newStatus, actorName: user?.name || "A member" } as any);
@@ -89,6 +92,7 @@ export default function TaskDetailPanel({
   };
 
   const handlePriorityChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
+    if (user?.role === "Visitor") return;
     const newPriority = e.target.value as "Low" | "Medium" | "High" | "Critical";
     if (task && newPriority !== task.priority) {
       await updateTask({ priority: newPriority });
@@ -97,6 +101,7 @@ export default function TaskDetailPanel({
   };
 
   const handleDueDateChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (user?.role === "Visitor") return;
     const newDate = e.target.value || null;
     if (task && newDate !== task.dueDate) {
       await updateTask({ dueDate: newDate });
@@ -105,7 +110,7 @@ export default function TaskDetailPanel({
   };
 
   const toggleAssignee = async (member: { _id: string; name: string; avatar: string }) => {
-    if (!task) return;
+    if (!task || user?.role === "Visitor") return;
     
     const isAssigned = task.assignees.some((a) => a.name === member.name);
     let updatedAssignees = [];
@@ -131,6 +136,7 @@ export default function TaskDetailPanel({
   };
 
   const handleCommentSubmit = async (text: string) => {
+    if (user?.role === "Visitor") return;
     await addComment(user?.name || "A member", text);
     onTaskUpdated();
   };
@@ -210,7 +216,8 @@ export default function TaskDetailPanel({
                 value={localTitle}
                 onChange={(e) => setLocalTitle(e.target.value)}
                 onBlur={handleBlurTitle}
-                className="w-full text-base font-bold bg-transparent border-b-2 border-transparent hover:border-zinc-400 focus:border-black focus:outline-none py-1 transition-colors"
+                disabled={user?.role === "Visitor"}
+                className="w-full text-base font-bold bg-transparent border-b-2 border-transparent hover:border-zinc-400 focus:border-black focus:outline-none py-1 transition-colors disabled:opacity-85 disabled:cursor-not-allowed text-black"
                 placeholder="Enter task title"
               />
             </div>
@@ -223,7 +230,8 @@ export default function TaskDetailPanel({
                 <select
                   value={task.status || "Todo"}
                   onChange={handleStatusChange}
-                  className="bg-white border-2 border-black rounded-lg p-2 text-xs font-bold focus:outline-none"
+                  disabled={user?.role === "Visitor"}
+                  className="bg-white border-2 border-black rounded-lg p-2 text-xs font-bold focus:outline-none disabled:opacity-85 disabled:cursor-not-allowed text-black"
                 >
                   <option value="Todo">To Do</option>
                   <option value="InProgress">In Progress</option>
@@ -237,7 +245,8 @@ export default function TaskDetailPanel({
                 <select
                   value={task.priority}
                   onChange={handlePriorityChange}
-                  className="bg-white border-2 border-black rounded-lg p-2 text-xs font-bold focus:outline-none"
+                  disabled={user?.role === "Visitor"}
+                  className="bg-white border-2 border-black rounded-lg p-2 text-xs font-bold focus:outline-none disabled:opacity-85 disabled:cursor-not-allowed text-black"
                 >
                   <option value="Low">Low</option>
                   <option value="Medium">Medium</option>
@@ -254,7 +263,8 @@ export default function TaskDetailPanel({
                 type="date"
                 value={task.dueDate ? task.dueDate.substring(0, 10) : ""}
                 onChange={handleDueDateChange}
-                className="bg-white border-2 border-black rounded-lg p-2 text-xs font-bold focus:outline-none w-full"
+                disabled={user?.role === "Visitor"}
+                className="bg-white border-2 border-black rounded-lg p-2 text-xs font-bold focus:outline-none w-full disabled:opacity-85 disabled:cursor-not-allowed text-black"
               />
             </div>
 
@@ -273,7 +283,8 @@ export default function TaskDetailPanel({
                       <button
                         key={member._id}
                         onClick={() => toggleAssignee(member)}
-                        className={`flex items-center gap-1.5 px-2 py-1 rounded-lg border-2 text-xs font-bold transition-all cursor-pointer ${
+                        disabled={user?.role === "Visitor"}
+                        className={`flex items-center gap-1.5 px-2 py-1 rounded-lg border-2 text-xs font-bold transition-all disabled:opacity-85 disabled:cursor-not-allowed ${
                           isAssigned
                             ? "bg-teal-200 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] text-black"
                             : "bg-white border-zinc-300 opacity-60 hover:opacity-100 hover:border-black text-zinc-700"
@@ -302,8 +313,9 @@ export default function TaskDetailPanel({
                 value={localDesc}
                 onChange={(e) => setLocalDesc(e.target.value)}
                 onBlur={handleBlurDesc}
+                disabled={user?.role === "Visitor"}
                 placeholder="Detail what needs to be done for this task..."
-                className="w-full bg-white border-2 border-black rounded-lg p-3 text-xs focus:outline-none"
+                className="w-full bg-white border-2 border-black rounded-lg p-3 text-xs focus:outline-none disabled:opacity-85 disabled:cursor-not-allowed text-black"
               />
             </div>
 

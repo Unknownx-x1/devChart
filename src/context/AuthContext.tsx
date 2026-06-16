@@ -8,7 +8,7 @@ export interface UserSession {
   userId: string;
   name: string;
   email: string;
-  role: "Admin" | "Lead" | "Member";
+  role: "Admin" | "Lead" | "Member" | "Visitor";
   avatar: string;
   workspace: string;
 }

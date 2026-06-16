@@ -11,38 +11,38 @@ export default function LoginPage() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [workspace, setWorkspace] = useState("Android Club");
-  const [workspacesList, setWorkspacesList] = useState<string[]>(["Android Club"]);
+  const [workspace, setWorkspace] = useState("");
+  const [workspacesList, setWorkspacesList] = useState<string[]>([]);
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  // Load workspaces and check search params on mount
+  // Load workspaces dynamically from database API on mount
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const savedListStr = localStorage.getItem("devchart_workspaces_list");
-      let list = ["Android Club"];
-      if (savedListStr) {
-        try {
-          const parsed = JSON.parse(savedListStr);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            list = parsed;
-          }
-        } catch (e) {}
-      }
-      setWorkspacesList(list);
+    const fetchWorkspaces = async () => {
+      try {
+        const res = await fetch("/api/workspaces");
+        if (res.ok) {
+          const list = await res.json();
+          setWorkspacesList(list);
 
-      const params = new URLSearchParams(window.location.search);
-      const ws = params.get("workspace");
-      if (ws) {
-        setWorkspace(ws);
-        // Ensure the workspace from URL is added to local workspacesList
-        if (!list.includes(ws)) {
-          setWorkspacesList((prev) => [...prev, ws]);
+          const params = new URLSearchParams(window.location.search);
+          const ws = params.get("workspace");
+          if (ws) {
+            setWorkspace(ws);
+            if (!list.includes(ws)) {
+              setWorkspacesList((prev) => [...prev, ws]);
+            }
+          }
+        } else {
+          setWorkspacesList(["Android Club"]);
         }
-      } else {
-        setWorkspace(list[0]);
+      } catch (e) {
+        console.error("Failed to load workspaces", e);
+        setWorkspacesList(["Android Club"]);
       }
-    }
+    };
+
+    fetchWorkspaces();
   }, []);
 
   // Redirect to dashboard if session exists
@@ -64,8 +64,13 @@ export default function LoginPage() {
     e.preventDefault();
     setError("");
 
-    if (!email.trim() || !password.trim() || !workspace.trim()) {
-      setError("Please fill in all fields");
+    if (!email.trim() || !password.trim()) {
+      setError("Please fill in email and password fields");
+      return;
+    }
+
+    if (!workspace) {
+      setError("Please select the Club/Workspace you want to log into");
       return;
     }
 
@@ -141,6 +146,7 @@ export default function LoginPage() {
                 className="w-full p-2.5 bg-zinc-50 border-2 border-black rounded-lg text-xs font-bold focus:outline-none focus:bg-white"
                 required
               >
+                <option value="" disabled>Select your Club...</option>
                 {workspacesList.map((ws) => (
                   <option key={ws} value={ws}>
                     {ws}

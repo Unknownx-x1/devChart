@@ -4,8 +4,8 @@ const MemberSchema = new mongoose.Schema({
   name: { type: String, required: true },
   role: {
     type: String,
-    enum: ['Admin', 'Lead', 'Member'],
-    default: 'Member',
+    enum: ['Admin', 'Lead', 'Member', 'Visitor'],
+    default: 'Visitor',
   },
   workspace: {
     type: String,

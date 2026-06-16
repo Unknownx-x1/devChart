@@ -12,28 +12,39 @@ export default function SignupPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState<"Admin" | "Lead" | "Member" | "">("Member");
-  const [workspace, setWorkspace] = useState("Android Club");
-  const [isCustomWorkspace, setIsCustomWorkspace] = useState(false);
-  const [customWorkspace, setCustomWorkspace] = useState("");
-  const [workspacesList, setWorkspacesList] = useState<string[]>(["Android Club"]);
+  const [role, setRole] = useState<string>("Visitor");
+  const [workspace, setWorkspace] = useState("");
+  const [workspacesList, setWorkspacesList] = useState<string[]>([]);
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  // Load existing workspaces from localStorage
+  // Load workspaces dynamically from database API on mount
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const savedListStr = localStorage.getItem("devchart_workspaces_list");
-      if (savedListStr) {
-        try {
-          const parsed = JSON.parse(savedListStr);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            setWorkspacesList(parsed);
-            setWorkspace(parsed[0]);
+    const fetchWorkspaces = async () => {
+      try {
+        const res = await fetch("/api/workspaces");
+        if (res.ok) {
+          const list = await res.json();
+          setWorkspacesList(list);
+
+          const params = new URLSearchParams(window.location.search);
+          const ws = params.get("workspace");
+          if (ws) {
+            setWorkspace(ws);
+            if (!list.includes(ws)) {
+              setWorkspacesList((prev) => [...prev, ws]);
+            }
           }
-        } catch (e) {}
+        } else {
+          setWorkspacesList(["Android Club"]);
+        }
+      } catch (e) {
+        console.error("Failed to load workspaces", e);
+        setWorkspacesList(["Android Club"]);
       }
-    }
+    };
+
+    fetchWorkspaces();
   }, []);
 
   // Redirect to dashboard if session exists
@@ -55,7 +66,7 @@ export default function SignupPage() {
     e.preventDefault();
     setError("");
 
-    const finalWorkspace = (isCustomWorkspace ? customWorkspace : workspace).trim();
+    const finalWorkspace = workspace.trim();
 
     if (!name.trim() || !email.trim() || !password.trim() || !role || !finalWorkspace) {
       setError("Please fill in all fields");
@@ -147,56 +158,20 @@ export default function SignupPage() {
             <div className="flex flex-col gap-1">
               <label className="text-xs font-black uppercase tracking-wide">Workspace Club / Project</label>
               <select
-                value={isCustomWorkspace ? "CUSTOM" : workspace}
-                onChange={(e) => {
-                  if (e.target.value === "CUSTOM") {
-                    setIsCustomWorkspace(true);
-                  } else {
-                    setIsCustomWorkspace(false);
-                    setWorkspace(e.target.value);
-                  }
-                }}
+                value={workspace}
+                onChange={(e) => setWorkspace(e.target.value)}
                 className="w-full p-2.5 bg-zinc-50 border-2 border-black rounded-lg text-xs font-bold focus:outline-none focus:bg-white"
                 required
               >
+                <option value="" disabled>Select a Club to join...</option>
                 {workspacesList.map((ws) => (
                   <option key={ws} value={ws}>
                     {ws}
                   </option>
                 ))}
-                <option value="CUSTOM">+ Register a New Club...</option>
               </select>
             </div>
 
-            {/* Custom Workspace input */}
-            {isCustomWorkspace && (
-              <div className="flex flex-col gap-1 animate-fadeIn">
-                <label className="text-[10px] font-black uppercase text-teal-600 tracking-wide">New Club Name</label>
-                <input
-                  type="text"
-                  value={customWorkspace}
-                  onChange={(e) => setCustomWorkspace(e.target.value)}
-                  placeholder="e.g. WebDev Club"
-                  className="w-full p-2.5 bg-teal-50/25 border-2 border-teal-600 rounded-lg text-xs font-bold focus:outline-none focus:bg-white"
-                  required
-                />
-              </div>
-            )}
-
-            {/* Club Role */}
-            <div className="flex flex-col gap-1">
-              <label className="text-xs font-black uppercase tracking-wide">Workspace Role</label>
-              <select
-                value={role}
-                onChange={(e) => setRole(e.target.value as any)}
-                className="w-full p-2.5 bg-zinc-50 border-2 border-black rounded-lg text-xs font-bold focus:outline-none focus:bg-white"
-                required
-              >
-                <option value="Member">Member (Developer / Designer)</option>
-                <option value="Lead">Project Lead</option>
-                <option value="Admin">Club Admin</option>
-              </select>
-            </div>
 
             {/* Submit */}
             <button

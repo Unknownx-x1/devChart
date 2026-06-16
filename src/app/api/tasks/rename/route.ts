@@ -4,6 +4,7 @@ import connectDB from "@/lib/mongodb";
 import Task from "@/models/Tasks";
 import User from "@/models/User";
 import Member from "@/models/Member";
+import Workspace from "@/models/Workspace";
 import { getUserFromRequest, signToken } from "@/lib/auth";
 
 export async function POST(request: NextRequest) {
@@ -26,11 +27,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Rename tasks, user accounts, and members in database
+    // Rename tasks, user accounts, members, and workspaces in database
     const [taskResult] = await Promise.all([
       Task.updateMany({ workspace: oldWorkspace }, { $set: { workspace: newWorkspace } }),
       User.updateMany({ workspace: oldWorkspace }, { $set: { workspace: newWorkspace } }),
       Member.updateMany({ workspace: oldWorkspace }, { $set: { workspace: newWorkspace } }),
+      Workspace.updateMany({ name: oldWorkspace }, { $set: { name: newWorkspace } }),
     ]);
 
     // If the active user is in the renamed workspace, update their JWT session token

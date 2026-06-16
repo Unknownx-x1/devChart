@@ -4,7 +4,7 @@ import toast from "react-hot-toast";
 export type Member = {
   _id: string;
   name: string;
-  role: "Admin" | "Lead" | "Member";
+  role: "Admin" | "Lead" | "Member" | "Visitor";
   avatar: string;
   joinedAt?: string;
   activeTasksCount?: number;
@@ -46,9 +46,32 @@ export function useMembers() {
     }
   };
 
+  const updateMemberRole = async (memberId: string, role: string) => {
+    try {
+      const res = await fetch("/api/members", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ memberId, role }),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.message || "Failed to update member role");
+      }
+      const updatedMember = await res.json();
+      setMembers((prev) =>
+        prev.map((m) => (m._id === memberId ? updatedMember : m))
+      );
+      toast.success(`Role updated successfully!`);
+      return updatedMember;
+    } catch (error: any) {
+      toast.error(error.message || "Failed to update role");
+      throw error;
+    }
+  };
+
   useEffect(() => {
     fetchMembers();
   }, []);
 
-  return { members, loading, refetch: fetchMembers, addMember };
+  return { members, loading, refetch: fetchMembers, addMember, updateMemberRole };
 }

@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: devchart-mongodb
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: devchart-web
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - MONGODB_URI=mongodb://mongodb:27017/devChart
+      - JWT_SECRET=devchart_super_secret_secret_123456
+      - NODE_ENV=production
+    depends_on:
+      - mongodb
+
+volumes:
+  mongodb_data:

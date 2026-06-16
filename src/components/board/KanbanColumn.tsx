@@ -3,6 +3,7 @@ import { Droppable, Draggable } from "@hello-pangea/dnd";
 import TaskCard from "@/components/TaskCard";
 import EmptyState from "@/components/shared/EmptyState";
 import { Task } from "@/hooks/useTasks";
+import { useAuth } from "@/context/AuthContext";
 
 interface KanbanColumnProps {
   id: "Todo" | "InProgress" | "Done";
@@ -19,6 +20,8 @@ export default function KanbanColumn({
   onCardClick,
   onAddTaskClick,
 }: KanbanColumnProps) {
+  const { user } = useAuth();
+  const isVisitor = user?.role === "Visitor";
   const columnTheme = {
     Todo: {
       border: "border-slate-400",
@@ -50,15 +53,17 @@ export default function KanbanColumn({
             {tasks.length}
           </span>
         </div>
-        <button
-          onClick={() => onAddTaskClick(id)}
-          className="p-1.5 bg-white hover:bg-black hover:text-white rounded-lg border-2 border-black transition-colors focus:outline-none cursor-pointer"
-          title={`Add task to ${title}`}
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
-          </svg>
-        </button>
+        {!isVisitor && (
+          <button
+            onClick={() => onAddTaskClick(id)}
+            className="p-1.5 bg-white hover:bg-black hover:text-white rounded-lg border-2 border-black transition-colors focus:outline-none cursor-pointer"
+            title={`Add task to ${title}`}
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
+            </svg>
+          </button>
+        )}
       </div>
 
       {/* Droppable Card List */}
@@ -74,11 +79,11 @@ export default function KanbanColumn({
             {tasks.length === 0 ? (
               <EmptyState
                 title="No tasks here"
-                message={`Drop a card here, or click "+" above to create a new task in ${title}.`}
+                message={isVisitor ? "This column has no tasks." : `Drop a card here, or click "+" above to create a new task in ${title}.`}
               />
             ) : (
               tasks.map((task, index) => (
-                <Draggable key={task._id} draggableId={task._id} index={index}>
+                <Draggable key={task._id} draggableId={task._id} index={index} isDragDisabled={isVisitor}>
                   {(dragProvided, dragSnapshot) => (
                     <div
                       ref={dragProvided.innerRef}

@@ -24,6 +24,17 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
 export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
+    const user = getUserFromRequest(request);
+    if (!user) {
+      return Response.json({ message: "Unauthorized" }, { status: 401 });
+    }
+    if (user.role === "Visitor") {
+      return Response.json(
+        { message: "Forbidden. Visitors cannot update tasks." },
+        { status: 403 }
+      );
+    }
+
     await connectDB();
     const { id } = await params;
     const body = await request.json();

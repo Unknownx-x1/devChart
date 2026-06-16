@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import connectDB from "@/lib/mongodb";
 import Task from "@/models/Tasks";
+import { getUserFromRequest } from "@/lib/auth";
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -8,6 +9,17 @@ interface RouteParams {
 
 export async function PATCH(request: NextRequest, { params }: RouteParams) {
   try {
+    const user = getUserFromRequest(request);
+    if (!user) {
+      return Response.json({ message: "Unauthorized" }, { status: 401 });
+    }
+    if (user.role === "Visitor") {
+      return Response.json(
+        { message: "Forbidden. Visitors cannot update task status." },
+        { status: 403 }
+      );
+    }
+
     await connectDB();
     const { id } = await params;
     const { status, actorName } = await request.json();

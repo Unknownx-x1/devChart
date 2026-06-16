@@ -1,7 +1,9 @@
 import { NextRequest } from "next/server";
 import connectDB from "@/lib/mongodb";
 import Task from "@/models/Tasks";
+import { getUserFromRequest } from "@/lib/auth";
 
+// GET handler... (rest of lines)
 export async function GET(request: NextRequest) {
   try {
     await connectDB();
@@ -50,6 +52,17 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    const user = getUserFromRequest(request);
+    if (!user) {
+      return Response.json({ message: "Unauthorized" }, { status: 401 });
+    }
+    if (user.role === "Visitor") {
+      return Response.json(
+        { message: "Forbidden. Visitors cannot create tasks." },
+        { status: 403 }
+      );
+    }
+
     await connectDB();
 
     const body = await request.json();
