@@ -1,14 +1,14 @@
-# 📊 devChart — Technical Club Collaboration Workspace
+#  devChart — Technical Club Collaboration Workspace
 
 **devChart** is a premium, secure, multi-tenant collaboration platform tailored for university and technical clubs. It helps teams organize projects, assign responsibilities, manage membership directories, and track progress using an interactive Kanban board with robust Role-Based Access Control (RBAC).
 
 ---
 
-## ✨ Key Features
+##  Key Features
 
-- **📂 Multi-Tenant Club Workspaces**: Create, rename, and toggle between separate club instances (e.g., `"Android Club"`, `"CodeChef Club"`) seamlessly. 
-- **📋 Interactive Kanban Board**: Drag-and-drop task management divided into *Todo*, *In Progress*, and *Done* states powered by `@hello-pangea/dnd`.
-- **🔍 Task Detail Slide-over Panel**: Rich side panel providing inline field editing (autosaves on blur), task descriptions, assignees management, interactive comment threads, and detailed activity logs.
+- **1. Multi-Tenant Club Workspaces**: Create, rename, and toggle between separate club instances (e.g., `"Android Club"`, `"CodeChef Club"`) seamlessly. 
+- **2. Interactive Kanban Board**: Drag-and-drop task management divided into *Todo*, *In Progress*, and *Done* states powered by `@hello-pangea/dnd`.
+- **3. Task Detail Slide-over Panel**: Rich side panel providing inline field editing (autosaves on blur), task descriptions, assignees management, interactive comment threads, and detailed activity logs.
 - **🛡️ Role-Based Access Control (RBAC)**:
   - **Admin**: Full control over settings, deleting tasks, renaming workspaces, and promoting any member's role.
   - **Lead**: Can create tasks, edit tasks, post comments, and promote/demote members between *Member* and *Visitor* roles.
