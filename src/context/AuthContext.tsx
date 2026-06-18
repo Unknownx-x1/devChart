@@ -34,6 +34,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (res.ok) {
         const data = await res.json();
         setUser(data.user);
+        if (data.user && data.user.workspace) {
+          localStorage.setItem("devchart_current_workspace", data.user.workspace);
+          window.dispatchEvent(new Event("workspaceChanged"));
+        }
       } else {
         setUser(null);
       }

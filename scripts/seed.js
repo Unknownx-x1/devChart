@@ -42,6 +42,7 @@ const ActivitySchema = new mongoose.Schema({
 
 const TaskSchema = new mongoose.Schema({
   title:       { type: String, required: true },
+  workspace:   { type: String, default: "Android Club" },
   description: { type: String, default: "" },
   priority:    { type: String, enum: ["Low", "Medium", "High", "Critical"], default: "Medium" },
   completed:   { type: Boolean, default: false },
@@ -55,10 +56,11 @@ const TaskSchema = new mongoose.Schema({
 });
 
 const MemberSchema = new mongoose.Schema({
-  name:     { type: String, required: true },
-  role:     { type: String, enum: ["Admin", "Lead", "Member"], default: "Member" },
-  avatar:   { type: String },
-  joinedAt: { type: Date, default: Date.now },
+  name:      { type: String, required: true },
+  workspace: { type: String, default: "Android Club" },
+  role:      { type: String, enum: ["Admin", "Lead", "Member"], default: "Member" },
+  avatar:    { type: String },
+  joinedAt:  { type: Date, default: Date.now },
 });
 
 const Task = mongoose.models.Task || mongoose.model("Task", TaskSchema);

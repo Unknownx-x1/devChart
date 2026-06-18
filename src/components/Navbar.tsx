@@ -141,6 +141,9 @@ export default function Navbar({ onNewTaskClick }: NavbarProps) {
           throw new Error("Failed to switch workspace session on backend");
         }
 
+        // Set local storage current workspace
+        localStorage.setItem("devchart_current_workspace", name);
+
         toast.success(`Switched to: ${name}`);
         setIsDropdownOpen(false);
         window.dispatchEvent(new Event("workspaceChanged"));
@@ -207,6 +210,7 @@ export default function Navbar({ onNewTaskClick }: NavbarProps) {
 
       const newList = [...workspaces, trimmed];
       localStorage.setItem("devchart_workspaces_list", JSON.stringify(newList));
+      localStorage.setItem("devchart_current_workspace", trimmed);
       setWorkspaces(newList);
       setIsCreateModalOpen(false);
 
